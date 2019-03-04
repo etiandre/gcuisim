@@ -2,7 +2,8 @@ var scene, camera, renderer, threejs, clock, meshParent;
 var gui = null;
 
 var WIDTH = window.innerWidth,
-    HEIGHT = window.innerHeight;
+    HEIGHT = window.innerHeight,
+    TEXSIZE = 512; // size of the textcanvas
 
 var mesh, color;
 
@@ -29,7 +30,7 @@ function init() {
 
     var canvas = document.getElementById('textCanvas');
     var ctx = canvas.getContext("2d");
-    canvas.width = canvas.height = 256;
+    canvas.width = canvas.height = TEXSIZE;
 
     camera = new THREE.PerspectiveCamera(25, WIDTH / HEIGHT, 1, 1000);
     camera.position.set(0, 0, 8);
@@ -93,68 +94,32 @@ function init() {
 
     // TEXT / UI ////
 
-    ctx.font = '20pt Arial';
-    ctx.fillStyle = "red";
-    ctx.fillText("je suis une texture", 100, 100);
+    ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText("Game Play", TEXSIZE/2, 0);
+    ctx.textBaseline = "bottom";
+    ctx.fillText("Memory Card", TEXSIZE/2, TEXSIZE);
+    ctx.rotate(Math.PI/2);
+    ctx.fillText("la gauche",TEXSIZE/2, 0);
+    ctx.rotate(Math.PI);
+    ctx.fillText("GTA VI", -TEXSIZE/2, TEXSIZE);
     var textTexture = new THREE.Texture(canvas);
     var textPlane = new THREE.Mesh(
-        new THREE.PlaneGeometry(1, 1),
+        new THREE.PlaneGeometry(1.7, 1.7),
         new THREE.MeshBasicMaterial({
             color: 0xffffff,
-            map: textTexture
+            map: textTexture,
+            transparent: true
         })
     )
-    textPlane.position.set(0,0,2);
+    textPlane.position.set(0,0,1);
     mesh.add(textPlane);
 
 
     // GUI ///////////////////////////////
-    var controller = new function () {
-        this.scaleX = 1;
-        this.scaleY = 1;
-        this.scaleZ = 1;
-        this.positionX = 0;
-        this.positionY = 0;
-        this.positionZ = 0;
-        this.rotationX = 0;
-        this.rotationY = 90;
-        this.rotationZ = 0;
-    }();
-
-    var gui = new dat.GUI();
-    var f1 = gui.addFolder('Scale');
-    f1.add(controller, 'scaleX', 0.1, 5).onChange(function () {
-        mesh.scale.x = (controller.scaleX);
-    });
-    f1.add(controller, 'scaleY', 0.1, 5).onChange(function () {
-        mesh.scale.y = (controller.scaleY);
-    });
-    f1.add(controller, 'scaleZ', 0.1, 5).onChange(function () {
-        mesh.scale.z = (controller.scaleZ);
-    });
-
-    var f2 = gui.addFolder('Position');
-    f2.add(controller, 'positionX', -5, 5).onChange(function () {
-        mesh.position.x = (controller.positionX);
-    });
-    f2.add(controller, 'positionY', -3, 5).onChange(function () {
-        mesh.position.y = (controller.positionY);
-    });
-    f2.add(controller, 'positionZ', -5, 5).onChange(function () {
-        mesh.position.z = (controller.positionZ);
-    });
-
-    var f3 = gui.addFolder('Rotation');
-    f3.add(controller, 'rotationX', -180, 180).onChange(function () {
-        mesh.rotation.x = de2ra(controller.rotationX);
-    });
-    f3.add(controller, 'rotationY', -180, 180).onChange(function () {
-        mesh.rotation.y = de2ra(controller.rotationY);
-    });
-    f3.add(controller, 'rotationZ', -180, 180).onChange(function () {
-        mesh.rotation.z = de2ra(controller.rotationZ);
-    });
-
+    //var gui = new dat.GUI();
     // ANIMATION /////////////////////////////////
     CubeStates = {
         "FRONT": new THREE.Vector3(0, 0, 0),
