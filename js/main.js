@@ -18,7 +18,7 @@ var reflectiveMaterial = new THREE.MeshPhongMaterial({
 });
 */
 
-function init() {
+async function init() {
     // SETUP /////////////////////////////
     scene = new THREE.Scene();
 
@@ -50,7 +50,7 @@ function init() {
         "img/GCNBiosShine.png",
         "img/GCNBiosShine.png",
         "img/GCNBiosShine.png"
-    ]); // mdr c'est moche
+    ]);
     color = 0x636189;
     var material = new THREE.MeshPhongMaterial({
         color: color,
@@ -93,18 +93,26 @@ function init() {
     scene.add(light);
 
     // TEXT / UI ////
+    var sourceSansPro = new FontFace('Source Sans Pro',
+        'url(https://fonts.gstatic.com/s/sourcesanspro/v11/6xKydSBYKcSV-LCoeQqfX1RYOo3ig4vwlxdu.woff2)',
+        {
+            'weight': 700
+        });
 
+    await sourceSansPro.load();
+    console.log("font : " + sourceSansPro.status);
+    document.fonts.add(sourceSansPro);
     ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
     ctx.fillStyle = "white";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText("Game Play", TEXSIZE/2, 0);
+    ctx.fillText("Game Play", TEXSIZE / 2, 0);
     ctx.textBaseline = "bottom";
-    ctx.fillText("Memory Card", TEXSIZE/2, TEXSIZE);
-    ctx.rotate(Math.PI/2);
-    ctx.fillText("la gauche",TEXSIZE/2, 0);
+    ctx.fillText("Memory Card", TEXSIZE / 2, TEXSIZE);
+    ctx.rotate(Math.PI / 2);
+    ctx.fillText("la gauche", TEXSIZE / 2, 0);
     ctx.rotate(Math.PI);
-    ctx.fillText("GTA VI", -TEXSIZE/2, TEXSIZE);
+    ctx.fillText("GTA VI", -TEXSIZE / 2, TEXSIZE);
     var textTexture = new THREE.Texture(canvas);
     var textPlane = new THREE.Mesh(
         new THREE.PlaneGeometry(1.7, 1.7),
@@ -114,7 +122,7 @@ function init() {
             transparent: true
         })
     )
-    textPlane.position.set(0,0,1);
+    textPlane.position.set(0, 0, 1);
     mesh.add(textPlane);
 
 
@@ -123,10 +131,10 @@ function init() {
     // ANIMATION /////////////////////////////////
     CubeStates = {
         "FRONT": new THREE.Vector3(0, 0, 0),
-        "LEFT": new THREE.Vector3(0, Math.PI/2, 0),
-        "RIGHT": new THREE.Vector3(0, -Math.PI/2, 0),
-        "UP": new THREE.Vector3(Math.PI/2, 0, 0),
-        "DOWN": new THREE.Vector3(-Math.PI/2, 0, 0)
+        "LEFT": new THREE.Vector3(0, Math.PI / 2, 0),
+        "RIGHT": new THREE.Vector3(0, -Math.PI / 2, 0),
+        "UP": new THREE.Vector3(Math.PI / 2, 0, 0),
+        "DOWN": new THREE.Vector3(-Math.PI / 2, 0, 0)
     }
     meshParent.cubeState = CubeStates.FRONT;
     var clock = THREE.Clock();
@@ -141,9 +149,9 @@ function init() {
         mesh.rotation.z = 0.06 * Math.sin(ts / 800 + 1 * Math.PI / 6); // up-down
         // SIDE TRANSITIONS //
         if (meshParent.rotation.toVector3() != meshParent.cubeState) {
-             meshParent.rotation.setFromVector3(
+            meshParent.rotation.setFromVector3(
                 meshParent.rotation.toVector3().lerp(meshParent.cubeState, 0.2)
-           );
+            );
         }
         renderScene();
     })();
@@ -158,26 +166,26 @@ function init() {
                     meshParent.cubeState = CubeStates.FRONT
                 break;
             case 40:
-            if (meshParent.cubeState == CubeStates.FRONT)
-                meshParent.cubeState = CubeStates.DOWN;
-            else if (meshParent.cubeState == CubeStates.UP)
-                meshParent.cubeState = CubeStates.FRONT
-            break;
+                if (meshParent.cubeState == CubeStates.FRONT)
+                    meshParent.cubeState = CubeStates.DOWN;
+                else if (meshParent.cubeState == CubeStates.UP)
+                    meshParent.cubeState = CubeStates.FRONT
+                break;
             case 37:
-            if (meshParent.cubeState == CubeStates.FRONT)
-                meshParent.cubeState = CubeStates.LEFT;
-            else if (meshParent.cubeState == CubeStates.RIGHT)
-                meshParent.cubeState = CubeStates.FRONT
-            break;
+                if (meshParent.cubeState == CubeStates.FRONT)
+                    meshParent.cubeState = CubeStates.LEFT;
+                else if (meshParent.cubeState == CubeStates.RIGHT)
+                    meshParent.cubeState = CubeStates.FRONT
+                break;
             case 39:
-            if (meshParent.cubeState == CubeStates.FRONT)
-                meshParent.cubeState = CubeStates.RIGHT;
-            else if (meshParent.cubeState == CubeStates.LEFT)
-                meshParent.cubeState = CubeStates.FRONT
-            break;
+                if (meshParent.cubeState == CubeStates.FRONT)
+                    meshParent.cubeState = CubeStates.RIGHT;
+                else if (meshParent.cubeState == CubeStates.LEFT)
+                    meshParent.cubeState = CubeStates.FRONT
+                break;
             case CubeStates.FRONT:
         }
-        
+
     }, false);
 }
 
