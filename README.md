@@ -1,8 +1,8 @@
-## Gamecube menu simulator
+# Gamecube BIOS UI simulator
+## Description
+This is a work-in-progress attempt to recreate the Gamecube IPL UI using Three.js.
 
-This is a work-in-progress attempt to recreate the Gamecube IPL using Three.js.
-
-## TODOs
+## TODO
  - Loading screen
  - Sound
  - Dynamic navigation
