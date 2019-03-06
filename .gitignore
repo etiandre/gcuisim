@@ -1,2 +1,4 @@
 res/ipl_decrypted.bin
 *.blend*
+node_modules
+package-lock.json
