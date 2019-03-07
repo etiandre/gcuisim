@@ -25,6 +25,7 @@ class UIDrawer {
     this.canvas.width = this.textureSize;
     this.canvas.height = this.textureSize;
     this.ctx = this.canvas.getContext('2d');
+    this.labelHeight = 85;
   }
 
   /**
@@ -71,16 +72,15 @@ class UIDrawer {
   }
 
   /**
-   * Draw a centered menu label with semi-transparent background.
+   * Draw a centered label with semi-transparent background.
    * @param {String} label The label to draw.
    * @param {int} position Distance in pixels from the top.
    */
   drawCenteredLabel(label, position) {
-    const height = 85;
     this.ctx.save();
     this.ctx.font = 'bold 65px "Source Sans Pro", sans-serif';
     this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    this.ctx.fillRect(10, position, this.textureSize - 10, height);
+    this.ctx.fillRect(10, position, this.textureSize - 10, this.labelHeight);
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     this.ctx.fillStyle = 'white';
@@ -88,7 +88,32 @@ class UIDrawer {
     this.ctx.shadowOffsetY = 3;
     this.ctx.shadowBlur = 0;
     this.ctx.shadowColor = 'black';
-    this.ctx.fillText(label, this.textureSize / 2, position + height / 2);
+    this.ctx.fillText(label, this.textureSize / 2, position + this.labelHeight / 2);
+    this.ctx.restore();
+  }
+
+  /**
+   * Draw a label with an option and a semi-transparent background.
+   * @param {String} label The label to draw.
+   * @param {String} option The option text to draw.
+   * @param {int} position Distance in pixels from the top.
+   */
+  drawOptionLabel(label, option, position) {
+    this.ctx.save();
+    this.ctx.font = 'bold 45px "Source Sans Pro", sans-serif';
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    this.ctx.fillRect(10, position, this.textureSize - 10, this.labelHeight);
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = 'white';
+    this.ctx.shadowOffsetX = 3;
+    this.ctx.shadowOffsetY = 3;
+    this.ctx.shadowBlur = 0;
+    this.ctx.shadowColor = 'black';
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText(label, 30, position + this.labelHeight / 2);
+    this.ctx.font = 'bold 65px "Source Sans Pro", sans-serif';
+    this.ctx.textAlign = 'right';
+    this.ctx.fillText(option, this.textureSize - 30, position + this.labelHeight / 2);
     this.ctx.restore();
   }
 }
@@ -240,13 +265,15 @@ async function init() {
         case CubeStates.RIGHT:
           uiDrawer.clear();
           uiDrawer.drawTopLabel('Calendar');
-          uiDrawer.drawCenteredLabel(new Date().toLocaleDateString(), 120);
-          uiDrawer.drawCenteredLabel(new Date().toLocaleTimeString(), 370);
+          uiDrawer.drawCenteredLabel(new Date().toLocaleDateString(), 110);
+          uiDrawer.drawCenteredLabel(new Date().toLocaleTimeString(), 380);
           redrawUI = true; // redraw the UI next frame to get the clock ticking
           break;
         case CubeStates.LEFT:
           uiDrawer.clear();
           uiDrawer.drawTopLabel('Options');
+          uiDrawer.drawOptionLabel('Sound', 'Stereo', 180);
+          uiDrawer.drawOptionLabel('Screen Position', '0', 310);
           break;
         case CubeStates.UP:
           uiDrawer.clear();
