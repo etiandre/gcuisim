@@ -2,16 +2,25 @@
 ## Description
 This is a work-in-progress attempt to recreate the Gamecube IPL UI using Three.js.
 
-Font used is Source Sans Pro Bold, as the original IPL font is hard to get and probably copyrighted.
+## Installation & Usage
+```
+$ git clone https://github.com/etiandre/gcuisim.git
+$ npm install
+$ npm start
+```
+
+Use the arrow keys to navigate.
+
+## Details
+ - The font used is Source Sans Pro Bold, as the original IPL font is hard to obtain and probably copyrighted.
+ - The shiny reflection texture is the original one (see https://tcrf.net/GameCube).
 
 ## TODO
  - Loading screen
  - Sound
- - Dynamic navigation
- - Particle effects
- - Second type of screen
+ - Background particle cube effects
+ - Modal screens
 
  ## License
- See $LICENSE$.
- Some of the libraries used are bundled in this repo, and are subject to their own licenses.
+ See `LICENSE`.
  
