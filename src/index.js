@@ -197,23 +197,23 @@ async function init() {
         }
         break;
       case 40:
-        if (meshParent.cubeState == CubeStates.FRONT) {
+        if (meshParent.cubeState === CubeStates.FRONT) {
           meshParent.cubeState = CubeStates.DOWN;
-        } else if (meshParent.cubeState == CubeStates.UP) {
+        } else if (meshParent.cubeState === CubeStates.UP) {
           meshParent.cubeState = CubeStates.FRONT;
         }
         break;
       case 37:
-        if (meshParent.cubeState == CubeStates.FRONT) {
+        if (meshParent.cubeState === CubeStates.FRONT) {
           meshParent.cubeState = CubeStates.LEFT;
-        } else if (meshParent.cubeState == CubeStates.RIGHT) {
+        } else if (meshParent.cubeState === CubeStates.RIGHT) {
           meshParent.cubeState = CubeStates.FRONT;
         }
         break;
       case 39:
-        if (meshParent.cubeState == CubeStates.FRONT) {
+        if (meshParent.cubeState === CubeStates.FRONT) {
           meshParent.cubeState = CubeStates.RIGHT;
-        } else if (meshParent.cubeState == CubeStates.LEFT) {
+        } else if (meshParent.cubeState === CubeStates.LEFT) {
           meshParent.cubeState = CubeStates.FRONT;
         }
         break;
