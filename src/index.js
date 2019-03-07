@@ -6,18 +6,59 @@ const OBJLoader = require('three-obj-loader');
 
 OBJLoader(THREE);
 
+
+// GLOBALS ////////////
 let scene;
 let camera;
 let renderer;
-let meshParent;
-let mesh;
+let menu;
+let floatingCube;
 let redrawUI = true;
 
-const TEXSIZE = 512; // size of the textcanvas
+class UIDrawer {
+  /**
+   * UIDrawer constructor
+   * @param {int} textureSize Size (in pixels) of the texture.
+   */
+  constructor(textureSize = 512) {
+    this.textureSize = textureSize;
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = textureSize;
+    this.canvas.height = textureSize;
+    this.ctx = this.canvas.getContext('2d');
+    this.ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
+  }
 
+  /**
+   * Clears the UI and resets any canvas transform.
+   */
+  clear() {
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, 512, 512);
+  }
+
+  /**
+   * Draws a radial menu.
+   * @param {Array<String>} labels The 4 labels to draw, in clockwise order,
+   * starting from the top one.
+   */
+  drawRadialMenu(labels) {
+    this.clear();
+    this.ctx.fillStyle = 'white';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'top';
+    this.ctx.fillText(labels[0], 512 / 2, 0);
+    this.ctx.textBaseline = 'bottom';
+    this.ctx.fillText(labels[2], 512 / 2, 512);
+    this.ctx.rotate(Math.PI / 2);
+    this.ctx.textBaseline = 'top';
+    this.ctx.fillText(labels[1], 512 / 2, -512);
+    this.ctx.rotate(Math.PI);
+    this.ctx.fillText(labels[3], -512 / 2, 0);
+  }
+}
 
 function de2ra(degree) { return degree * (Math.PI / 180); }
-
 
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -38,11 +79,6 @@ async function init() {
   renderer.setClearColor(0x000000, 1);
 
   document.body.appendChild(renderer.domElement);
-
-  const canvas = document.getElementById('textCanvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = TEXSIZE;
-  canvas.height = TEXSIZE;
 
   camera = new THREE.PerspectiveCamera(25, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.set(0, 0, 8);
@@ -70,18 +106,18 @@ async function init() {
     shininess: 100,
   });
 
-  mesh = new THREE.Mesh();
-  meshParent = new THREE.Group();
+  floatingCube = new THREE.Mesh();
+  menu = new THREE.Group();
   const loader = new THREE.OBJLoader();
   loader.load(CubeObj, (o) => {
-    mesh.geometry = o.children[0].geometry;
-    mesh.material = material;
-    mesh.position.set(0, 0, 0);
-    mesh.rotation.set(0, 0, 0);
-    mesh.rotation.y = de2ra(-90);
-    mesh.scale.set(1, 1, 1);
-    meshParent.add(mesh);
-    scene.add(meshParent);
+    floatingCube.geometry = o.children[0].geometry;
+    floatingCube.material = material;
+    floatingCube.position.set(0, 0, 0);
+    floatingCube.rotation.set(0, 0, 0);
+    floatingCube.rotation.y = de2ra(-90);
+    floatingCube.scale.set(1, 1, 1);
+    menu.add(floatingCube);
+    scene.add(menu);
   });
 
   // LIGHTS //////////////////////////////
@@ -106,11 +142,11 @@ async function init() {
     {
       weight: 700,
     });
-
   await sourceSansPro.load();
   document.fonts.add(sourceSansPro);
-  ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
-  const textTexture = new THREE.Texture(canvas);
+  const uiDrawer = new UIDrawer();
+
+  const textTexture = new THREE.Texture(uiDrawer.canvas);
   const textPlane = new THREE.Mesh(
     new THREE.PlaneGeometry(1.7, 1.7),
     new THREE.MeshBasicMaterial({
@@ -120,7 +156,7 @@ async function init() {
     }),
   );
   textPlane.position.set(0, 0, 1);
-  mesh.add(textPlane);
+  floatingCube.add(textPlane);
 
 
   // GUI ///////////////////////////////
@@ -133,51 +169,39 @@ async function init() {
     UP: new THREE.Euler(Math.PI / 2, 0, 0),
     DOWN: new THREE.Euler(-Math.PI / 2, 0, 0),
   };
-  meshParent.cubeState = CubeStates.FRONT;
+  menu.cubeState = CubeStates.FRONT;
   (function animate(ts) {
     requestAnimationFrame(animate);
     textTexture.needsUpdate = true;
     // FLOATING ANIMATION //
-    mesh.position.y = 0.08 * Math.sin(ts / 800);
-    mesh.position.x = 0.05 * Math.sin(ts / 800 + 3 * Math.PI / 4);
-    mesh.rotation.x = 0.08 * Math.sin(ts / 800 + Math.PI / 4);
-    mesh.rotation.y = 0.08 * Math.sin(ts / 800 / 3); // left-right
-    mesh.rotation.z = 0.06 * Math.sin(ts / 800 + 1 * Math.PI / 6); // up-down
+    floatingCube.position.y = 0.08 * Math.sin(ts / 800);
+    floatingCube.position.x = 0.05 * Math.sin(ts / 800 + 3 * Math.PI / 4);
+    floatingCube.rotation.x = 0.08 * Math.sin(ts / 800 + Math.PI / 4);
+    floatingCube.rotation.y = 0.08 * Math.sin(ts / 800 / 3); // left-right
+    floatingCube.rotation.z = 0.06 * Math.sin(ts / 800 + 1 * Math.PI / 6); // up-down
 
     // SIDE TRANSITIONS //
-    if (meshParent.rotation.toVector3() !== meshParent.cubeState) {
-      meshParent.rotation.setFromVector3(
-        meshParent.rotation.toVector3().lerp(meshParent.cubeState, 0.2),
+    if (menu.rotation.toVector3() !== menu.cubeState) {
+      menu.rotation.setFromVector3(
+        menu.rotation.toVector3().lerp(menu.cubeState, 0.2),
       );
     }
     if (redrawUI) {
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, TEXSIZE, TEXSIZE);
-      switch (meshParent.cubeState) {
+      switch (menu.cubeState) {
         case CubeStates.FRONT:
-          ctx.fillStyle = 'white';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText('Game Play', TEXSIZE / 2, 0);
-          ctx.textBaseline = 'bottom';
-          ctx.fillText('Memory Card', TEXSIZE / 2, TEXSIZE);
-          ctx.rotate(Math.PI / 2);
-          ctx.textBaseline = 'top';
-          ctx.fillText('Calendar', TEXSIZE / 2, -TEXSIZE);
-          ctx.rotate(Math.PI);
-          ctx.fillText('Options', -TEXSIZE / 2, 0);
+          uiDrawer.drawRadialMenu(['Game Play', 'Calendar', 'Memory Card', 'Options']);
           break;
         case CubeStates.RIGHT:
-          ctx.fillStyle = 'white';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText('Calendar', TEXSIZE / 2, 0);
+          uiDrawer.ctx.fillStyle = 'white';
+          uiDrawer.ctx.textAlign = 'center';
+          uiDrawer.ctx.textBaseline = 'top';
+          uiDrawer.ctx.fillText('Calendar', 512 / 2, 0);
           break;
         case CubeStates.LEFT:
-          ctx.fillStyle = 'white';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'top';
-          ctx.fillText('Options', TEXSIZE / 2, 0);
+          uiDrawer.ctx.fillStyle = 'white';
+          uiDrawer.ctx.textAlign = 'center';
+          uiDrawer.ctx.textBaseline = 'top';
+          uiDrawer.ctx.fillText('Options', 512 / 2, 0);
           break;
         default:
       }
@@ -190,31 +214,31 @@ async function init() {
     const keyCode = event.which;
     switch (keyCode) {
       case 38:
-        if (meshParent.cubeState === CubeStates.FRONT) {
-          meshParent.cubeState = CubeStates.UP;
-        } else if (meshParent.cubeState === CubeStates.DOWN) {
-          meshParent.cubeState = CubeStates.FRONT;
+        if (menu.cubeState === CubeStates.FRONT) {
+          menu.cubeState = CubeStates.UP;
+        } else if (menu.cubeState === CubeStates.DOWN) {
+          menu.cubeState = CubeStates.FRONT;
         }
         break;
       case 40:
-        if (meshParent.cubeState === CubeStates.FRONT) {
-          meshParent.cubeState = CubeStates.DOWN;
-        } else if (meshParent.cubeState === CubeStates.UP) {
-          meshParent.cubeState = CubeStates.FRONT;
+        if (menu.cubeState === CubeStates.FRONT) {
+          menu.cubeState = CubeStates.DOWN;
+        } else if (menu.cubeState === CubeStates.UP) {
+          menu.cubeState = CubeStates.FRONT;
         }
         break;
       case 37:
-        if (meshParent.cubeState === CubeStates.FRONT) {
-          meshParent.cubeState = CubeStates.LEFT;
-        } else if (meshParent.cubeState === CubeStates.RIGHT) {
-          meshParent.cubeState = CubeStates.FRONT;
+        if (menu.cubeState === CubeStates.FRONT) {
+          menu.cubeState = CubeStates.LEFT;
+        } else if (menu.cubeState === CubeStates.RIGHT) {
+          menu.cubeState = CubeStates.FRONT;
         }
         break;
       case 39:
-        if (meshParent.cubeState === CubeStates.FRONT) {
-          meshParent.cubeState = CubeStates.RIGHT;
-        } else if (meshParent.cubeState === CubeStates.LEFT) {
-          meshParent.cubeState = CubeStates.FRONT;
+        if (menu.cubeState === CubeStates.FRONT) {
+          menu.cubeState = CubeStates.RIGHT;
+        } else if (menu.cubeState === CubeStates.LEFT) {
+          menu.cubeState = CubeStates.FRONT;
         }
         break;
       default:
@@ -222,5 +246,7 @@ async function init() {
     redrawUI = true;
   }, false);
 }
+
+// MAIN //////////
 
 init();
