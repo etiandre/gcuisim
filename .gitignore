@@ -1,2 +1,3 @@
 *.blend*
 node_modules
+dist
