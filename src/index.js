@@ -34,11 +34,11 @@ class UIDrawer {
    */
   clear() {
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    this.ctx.clearRect(0, 0, 512, 512);
+    this.ctx.clearRect(0, 0, this.textureSize, this.textureSize);
   }
 
   /**
-   * Draws a radial menu.
+   * Clears the UI and draws a radial menu.
    * @param {Array<String>} labels The 4 labels to draw, in clockwise order,
    * starting from the top one.
    */
@@ -47,14 +47,25 @@ class UIDrawer {
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'top';
-    this.ctx.fillText(labels[0], 512 / 2, 0);
+    this.ctx.fillText(labels[0], this.textureSize / 2, 0);
     this.ctx.textBaseline = 'bottom';
-    this.ctx.fillText(labels[2], 512 / 2, 512);
+    this.ctx.fillText(labels[2], this.textureSize / 2, this.textureSize);
     this.ctx.rotate(Math.PI / 2);
     this.ctx.textBaseline = 'top';
-    this.ctx.fillText(labels[1], 512 / 2, -512);
+    this.ctx.fillText(labels[1], this.textureSize / 2, -this.textureSize);
     this.ctx.rotate(Math.PI);
-    this.ctx.fillText(labels[3], -512 / 2, 0);
+    this.ctx.fillText(labels[3], -this.textureSize / 2, 0);
+  }
+
+  /**
+   * Draw a top label (like a title).
+   * @param {String} label The label to draw.
+   */
+  drawTopLabel(label) {
+    this.ctx.fillStyle = 'white';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'top';
+    this.ctx.fillText(label, this.textureSize / 2, 0);
   }
 }
 
@@ -172,7 +183,6 @@ async function init() {
   menu.cubeState = CubeStates.FRONT;
   (function animate(ts) {
     requestAnimationFrame(animate);
-    textTexture.needsUpdate = true;
     // FLOATING ANIMATION //
     floatingCube.position.y = 0.08 * Math.sin(ts / 800);
     floatingCube.position.x = 0.05 * Math.sin(ts / 800 + 3 * Math.PI / 4);
@@ -183,25 +193,31 @@ async function init() {
     // SIDE TRANSITIONS //
     if (menu.rotation.toVector3() !== menu.cubeState) {
       menu.rotation.setFromVector3(
-        menu.rotation.toVector3().lerp(menu.cubeState, 0.2),
+        menu.rotation.toVector3().lerp(menu.cubeState, 0.2), // TODO: make a real linear animation.
       );
     }
+    // UI //
     if (redrawUI) {
+      textTexture.needsUpdate = true;
       switch (menu.cubeState) {
         case CubeStates.FRONT:
           uiDrawer.drawRadialMenu(['Game Play', 'Calendar', 'Memory Card', 'Options']);
           break;
         case CubeStates.RIGHT:
-          uiDrawer.ctx.fillStyle = 'white';
-          uiDrawer.ctx.textAlign = 'center';
-          uiDrawer.ctx.textBaseline = 'top';
-          uiDrawer.ctx.fillText('Calendar', 512 / 2, 0);
+          uiDrawer.clear();
+          uiDrawer.drawTopLabel('Calendar');
           break;
         case CubeStates.LEFT:
-          uiDrawer.ctx.fillStyle = 'white';
-          uiDrawer.ctx.textAlign = 'center';
-          uiDrawer.ctx.textBaseline = 'top';
-          uiDrawer.ctx.fillText('Options', 512 / 2, 0);
+          uiDrawer.clear();
+          uiDrawer.drawTopLabel('Options');
+          break;
+        case CubeStates.UP:
+          uiDrawer.clear();
+          uiDrawer.drawTopLabel('Game Play');
+          break;
+        case CubeStates.DOWN:
+          uiDrawer.clear();
+          uiDrawer.drawTopLabel('Memory Card');
           break;
         default:
       }
