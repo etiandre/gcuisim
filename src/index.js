@@ -17,16 +17,14 @@ let redrawUI = true;
 
 class UIDrawer {
   /**
-   * UIDrawer constructor
-   * @param {int} textureSize Size (in pixels) of the texture.
+   * UIDrawer constructor.
    */
-  constructor(textureSize = 512) {
-    this.textureSize = textureSize;
+  constructor() {
+    this.textureSize = 512;
     this.canvas = document.createElement('canvas');
-    this.canvas.width = textureSize;
-    this.canvas.height = textureSize;
+    this.canvas.width = this.textureSize;
+    this.canvas.height = this.textureSize;
     this.ctx = this.canvas.getContext('2d');
-    this.ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
   }
 
   /**
@@ -44,6 +42,7 @@ class UIDrawer {
    */
   drawRadialMenu(labels) {
     this.clear();
+    this.ctx.font = 'bold 70px "Source Sans Pro", sans-serif';
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'top';
@@ -62,10 +61,35 @@ class UIDrawer {
    * @param {String} label The label to draw.
    */
   drawTopLabel(label) {
+    this.ctx.save();
+    this.ctx.font = 'bold 80px "Source Sans Pro", sans-serif';
     this.ctx.fillStyle = 'white';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'top';
-    this.ctx.fillText(label, this.textureSize / 2, 0);
+    this.ctx.fillText(label, this.textureSize / 2, this.textureSize / 100);
+    this.ctx.restore();
+  }
+
+  /**
+   * Draw a centered menu label with semi-transparent background.
+   * @param {String} label The label to draw.
+   * @param {int} position Distance in pixels from the top.
+   */
+  drawCenteredLabel(label, position) {
+    const height = 85;
+    this.ctx.save();
+    this.ctx.font = 'bold 65px "Source Sans Pro", sans-serif';
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    this.ctx.fillRect(10, position, this.textureSize - 10, height);
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillStyle = 'white';
+    this.ctx.shadowOffsetX = 3;
+    this.ctx.shadowOffsetY = 3;
+    this.ctx.shadowBlur = 0;
+    this.ctx.shadowColor = 'black';
+    this.ctx.fillText(label, this.textureSize / 2, position + height / 2);
+    this.ctx.restore();
   }
 }
 
@@ -198,6 +222,16 @@ async function init() {
     }
     // UI //
     if (redrawUI) {
+      redrawUI = false;
+      // move the UI to the face facing the camera
+      const UIRot = new THREE.Euler(
+        -menu.cubeState.x,
+        -menu.cubeState.y,
+        -menu.cubeState.z,
+      ); // this does "let newRot = -1 * menu.cubeState". there has to be a better way... right ?
+      textPlane.position.copy(new THREE.Vector3(0, 0, 1).applyEuler(UIRot));
+      textPlane.rotation.copy(UIRot);
+
       textTexture.needsUpdate = true;
       switch (menu.cubeState) {
         case CubeStates.FRONT:
@@ -206,6 +240,9 @@ async function init() {
         case CubeStates.RIGHT:
           uiDrawer.clear();
           uiDrawer.drawTopLabel('Calendar');
+          uiDrawer.drawCenteredLabel(new Date().toLocaleDateString(), 120);
+          uiDrawer.drawCenteredLabel(new Date().toLocaleTimeString(), 370);
+          redrawUI = true; // redraw the UI next frame to get the clock ticking
           break;
         case CubeStates.LEFT:
           uiDrawer.clear();
@@ -221,7 +258,7 @@ async function init() {
           break;
         default:
       }
-      redrawUI = false;
+      
     }
     renderScene();
   }());
