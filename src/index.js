@@ -56,6 +56,9 @@ async function init() {
     GCNBiosShine,
     GCNBiosShine,
   ]); // ugly but that'll do
+  // Phong or Lambert ?? Gamecube is supposed to only know (kinda) Lambert (Gouraud).
+  // With Phong and some point lights, we can make the cube have that iridescent effect.
+  // No idea how it was done on original hardware.
   const material = new THREE.MeshPhongMaterial({
     color: 0x636189,
     envMap: shineTexture,
@@ -82,6 +85,7 @@ async function init() {
   });
 
   // LIGHTS //////////////////////////////
+  // TODO : blue, green on the left, reddish-yellow on the right
   const ambient = new THREE.AmbientLight(0xffffff);
   scene.add(ambient);
 
