@@ -61,7 +61,8 @@ async function init() {
     envMap: shineTexture,
     reflectivity: 1,
     transparent: true,
-    side: THREE.BackSide,
+    side: THREE.DoubleSide,
+    depthTest: false,
     opacity: 0.57,
     shininess: 100,
   });
