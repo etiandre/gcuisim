@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 import * as THREE from 'three';
 import UIDrawer from './UIDrawer';
 import GCNBiosShine from './assets/GCNBiosShine.png';
