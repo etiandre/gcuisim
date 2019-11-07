@@ -89,15 +89,15 @@ async function init() {
   const ambient = new THREE.AmbientLight(0xffffff);
   scene.add(ambient);
 
-  const light1 = new THREE.PointLight(0x5311); // green highlights
+  const light1 = new THREE.PointLight(0x005311); // green highlights
   light1.position.set(1, 0, 2);
   scene.add(light1);
 
-  const light2 = new THREE.PointLight(0xdddddd); // white
+  const light2 = new THREE.PointLight(0xcccccc); // white
   light2.position.set(0, 1.5, 2);
   scene.add(light2);
 
-  const light3 = new THREE.PointLight(0x001153); // blue highlights
+  const light3 = new THREE.PointLight(0x001166); // blue highlights
   light3.position.set(-1, 0, 2);
   scene.add(light3);
 
