@@ -2,6 +2,8 @@
 ## Description
 This is a work-in-progress attempt to recreate the Gamecube IPL UI using Three.js.
 
+[Screencast_20231130_202028.webm](https://github.com/etiandre/gcuisim/assets/229481/8bcbbea4-0b42-4aec-a684-1ee43eb1b9a4)
+
 ## Installation & Usage
 ### Demo
 ```
